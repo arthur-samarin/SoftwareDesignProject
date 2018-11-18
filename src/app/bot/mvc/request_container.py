@@ -1,3 +1,5 @@
+from typing import Optional
+
 from app.bot.mvc import Request, Response, ResponseReplyTemplate, Template
 
 
@@ -9,5 +11,5 @@ class RequestContainer:
     def add_response(self, response: Response):
         self.responses.append(response)
 
-    def add_template_reply(self, template: Template, args: dict):
+    def add_template_reply(self, template: Template, args: Optional[dict] = None):
         self.add_response(ResponseReplyTemplate(template, args))

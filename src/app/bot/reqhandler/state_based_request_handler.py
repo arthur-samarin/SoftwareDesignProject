@@ -18,6 +18,8 @@ class RequestHandlerState:
 
 
 class StateBasedRequestHandler(RequestHandler):
+    chat_id_key_extractor = lambda request: request.effective_chat_id
+
     def __init__(self, key_extractor: Callable[[Request], Any], default_state: RequestHandlerState):
         self.key_extractor = key_extractor
         self.key_to_state = {}
@@ -25,7 +27,8 @@ class StateBasedRequestHandler(RequestHandler):
 
     def handle(self, container: RequestContainer):
         key = self.key_extractor(container.request)
-        self._handle_for_key(key, container)
+        if key is not None:
+            self._handle_for_key(key, container)
 
     def _handle_for_key(self, key: Any, request_container: RequestContainer) -> None:
         state_changer = self.__create_state_changer(key)

@@ -1,5 +1,7 @@
-from app.bot.mvc import MessageContent
 from typing import Optional, List
+
+from app.bot.mvc import MessageContent
+
 
 class Template:
     def __init__(self):
@@ -15,6 +17,10 @@ class Template:
     @staticmethod
     def constant(content: MessageContent):
         return ConstantTemplate(content)
+
+    @staticmethod
+    def constant_html(text: str):
+        return Template.constant(MessageContent(text))
 
 
 class StringFormatTemplate(Template):
@@ -34,4 +40,3 @@ class ConstantTemplate(Template):
 
     def create_message(self, args: dict) -> MessageContent:
         return self.content
-
