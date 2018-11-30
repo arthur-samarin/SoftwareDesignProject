@@ -1,9 +1,9 @@
-from app.launch import Launcher
+from app.launch import Launcher, Config
 
 
 def main():
-    launcher = Launcher()
-    launcher.start()
+    config = Config.from_json_file('config.json')
+    Launcher.start(config)
 
 
 if __name__ == '__main__':
