@@ -15,6 +15,6 @@ class Launcher:
                             level=logging.INFO)
 
         request_handler = AppRequestHandler()
-        bot = Bot(config.bot_token, request=Request(con_pool_size=8))
+        bot = Bot(config.bot_token, request=Request(con_pool_size=8, proxy_url=config.proxy_url))
         bot_runner = MvcBotRunner(bot, request_handler)
         bot_runner.run()
