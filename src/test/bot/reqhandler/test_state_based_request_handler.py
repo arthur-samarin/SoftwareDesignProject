@@ -24,6 +24,7 @@ class StateA(RequestHandlerState):
         elif message_text == 'SwitchDefault':
             state_changer.change(None)
 
+
 class StateB(RequestHandlerState):
     def handle(self, state_changer: StateChanger, request_container: RequestContainer):
         state_changer.change_and_handle(StateA(), request_container)

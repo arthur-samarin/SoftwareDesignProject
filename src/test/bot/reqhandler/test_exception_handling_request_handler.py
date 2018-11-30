@@ -18,7 +18,7 @@ class ExceptionThrowingRequestHandler(RequestHandler):
 
 class TestExceptionHandlingRequestHandler(TestCase):
     def setUp(self):
-        def internal_exception_handler(r: Request, exception_info: tuple):
+        def internal_exception_handler(_: Request, exception_info: tuple):
             self.last_exception_info = exception_info
 
         self.last_exception_info = None

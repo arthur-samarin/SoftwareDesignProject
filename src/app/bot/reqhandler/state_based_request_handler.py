@@ -18,7 +18,9 @@ class RequestHandlerState:
 
 
 class StateBasedRequestHandler(RequestHandler):
-    chat_id_key_extractor = lambda request: request.effective_chat_id
+    @staticmethod
+    def chat_id_key_extractor(request: Request):
+        return request.effective_chat_id
 
     def __init__(self, key_extractor: Callable[[Request], Any], default_state: RequestHandlerState):
         self.key_extractor = key_extractor

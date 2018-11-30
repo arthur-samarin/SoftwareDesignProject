@@ -35,11 +35,11 @@ class MvcHandler(Handler):
         request_container = RequestContainer(Request(update))
         try:
             self.request_handler.handle(request_container)
-        except:
+        except Exception:
             logger.exception('Exception while handling request with RequestHandler')
 
         for response in request_container.responses:
             try:
                 response.send(self.bot, request_container.request)
-            except:
+            except Exception:
                 logger.exception('Exception while sending response')

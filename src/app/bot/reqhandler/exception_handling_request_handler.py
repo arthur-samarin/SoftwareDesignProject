@@ -18,7 +18,7 @@ class ExceptionHandlingRequestHandler(RequestHandler):
             self.wrapped.handle(container)
         except BotException as ex:
             self.__handle_bot_exception(container, ex)
-        except:
+        except Exception:
             self.__handle_exception(container)
 
     @staticmethod
