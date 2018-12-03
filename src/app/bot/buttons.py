@@ -5,9 +5,10 @@ default_set = [[button_solutions_list, button_about]]
 
 button_upload = '✉️️ Загрузить решение'
 button_rename = '🏷 Переименовать'
-button_change_language = '⚙ Сменить язык'
 button_challenge = '⚔️ Бросить вызов'
 button_back = '⬅️ Назад'
+button_cancel = '⬅️️ Отмена'
 
-solution_actions_set = [[button_upload, button_rename, button_change_language], [button_challenge, button_back]]
+solution_actions_set = [[button_upload, button_rename], [button_challenge, button_back]]
 no_solution_actions_set = [[button_upload], [button_back]]
+cancel_button_set = [[button_cancel]]

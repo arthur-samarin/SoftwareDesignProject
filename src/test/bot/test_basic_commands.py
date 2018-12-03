@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from app import Components
 from app.bot import AppRequestHandler, templates, buttons
 from app.bot.mvc import Template, RequestContainer, ResponseReplyTemplate
 from test.bot import RequestFaker
@@ -7,7 +8,7 @@ from test.bot import RequestFaker
 
 class TestBasicCommands(TestCase):
     def setUp(self):
-        self.rh = AppRequestHandler()
+        self.rh = AppRequestHandler(Components())
 
     def test_start(self):
         self.assert_has_answer('/start', templates.start_message)

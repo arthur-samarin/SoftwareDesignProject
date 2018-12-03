@@ -20,9 +20,9 @@ class StateA(RequestHandlerState):
         })
 
         if message_text == 'SwitchB':
-            state_changer.change(StateB())
+            state_changer.change(StateB(), request_container)
         elif message_text == 'SwitchDefault':
-            state_changer.change(None)
+            state_changer.change(None, request_container)
 
 
 class StateB(RequestHandlerState):

@@ -1,4 +1,3 @@
-import html
 from typing import List, Optional
 
 import app.bot.buttons as buttons
@@ -8,11 +7,16 @@ from app.model import Solution
 from app.util import group_by_k
 
 err_no_such_game = Template.constant_html('Такая игра не существует')
+err_no_solution = Template.from_string_format('У тебя нет решения для игры 🕹{name}!')
 
 start_message = Template.constant(MessageContent('''
 Добро пожаловать, разработчик!
 
 Здесь ты можешь показать всем свои навыки в разработке ИИ для пошаговых игр.
+''', buttons.default_set))
+
+main_message = Template.constant(MessageContent('''
+Что ты хочешь узнать?
 ''', buttons.default_set))
 
 about_bot = Template.constant(MessageContent('''
@@ -21,8 +25,13 @@ about_bot = Template.constant(MessageContent('''
 Этот бот сделан в качесте проекта по курсу проектирования ПО.
 ''', buttons.default_set))
 
-upload_solution = Template.constant_html('Отправь мне файл с кодом твоего решения')
-rename_solution = Template.constant_html('Введи новое название своего решения.\nОтменить: /cancel')
+upload_solution = Template.constant(MessageContent('Отправь мне файл с кодом твоего решения', buttons.cancel_button_set))
+upload_solution_too_big = Template.constant(MessageContent('Размер решения не должен превышать 1Мб', buttons.cancel_button_set))
+upload_solution_ok = Template.constant(MessageContent('Решение обновлено'))
+rename_solution = Template.constant(MessageContent('Введи новое название своего решения.\n'
+                                                   '3-20 символов. Русские и латинские буквы, цифры, пробелы и _.', buttons.cancel_button_set))
+rename_solution_ok = Template.constant(MessageContent('Имя решения обновлено.'))
+challenge_link = Template.from_string_format('Кинь эту команду тому, с кем ты хочешь сразиться:\n\n{link}')
 
 
 class _SolutionsList(Template):
@@ -37,7 +46,7 @@ class _SolutionsList(Template):
 
             solution: Solution = game_name_to_solution.get(game.name)
             if solution is not None:
-                text += html.escape(solution.name)
+                text += solution.name_as_html
             else:
                 text += '<i>[нет решения]</i>'
 
@@ -57,7 +66,7 @@ class _SolutionInfo(Template):
 
         text = f'<b>🕹 {game.display_name}</b>\n\n'
         if solution:
-            text += html.escape(game.name if game.name else '[без имени]') + '\n'
+            text += solution.name_as_html + '\n'
             text += 'Язык: ' + solution.language_name + '\n'
             text += '\n'
         else:
@@ -71,8 +80,8 @@ solution_info = _SolutionInfo()
 
 class _ChooseLanguage(Template):
     def create_message(self, args: dict) -> MessageContent:
-        button_rows = group_by_k(3, args['list'])
-        return MessageContent('Выбери язык твоего решения.', group_by_k(3, button_rows))
+        button_rows = group_by_k(3, list(map(lambda l: l.display_name, args['list'])))
+        return MessageContent('Выбери язык твоего решения.', button_rows)
 
 
 choose_language = _ChooseLanguage()
