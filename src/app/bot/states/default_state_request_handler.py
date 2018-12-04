@@ -24,7 +24,7 @@ class DefaultRequestHandlerState(RequestHandlerState):
             request_container.add_template_reply(templates.start_message)
         elif req.has_text(buttons.button_about):
             request_container.add_template_reply(templates.about_bot)
-        elif req.has_text(buttons.button_solutions_list):
+        elif req.has_text(buttons.button_games):
             games = self.games_registry.get_games_list()
             solutions = self.solutions_dao.find_solutions_by_creator(req.effective_user_id)
 

@@ -8,11 +8,12 @@ from app.bot.mvc.file_handle import RealFileHandle
 
 
 class Request:
-    def __init__(self, update: Update):
+    def __init__(self, update: Update, file_handle: FileHandle = None):
         self.update = update
 
         self.command_name = None
         self.text = None
+        self.file_handle = file_handle
 
         if update.message:
             text = update.message.text
@@ -38,6 +39,9 @@ class Request:
         return self.update.message and self.update.message.text == text
 
     def get_file_handle(self) -> Optional[FileHandle]:
+        if self.file_handle:
+            return self.file_handle
+
         update = self.update
         if update.message and update.message.document:
             return RealFileHandle(update.message.bot, update.message.document)

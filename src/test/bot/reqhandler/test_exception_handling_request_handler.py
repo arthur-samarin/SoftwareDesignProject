@@ -33,7 +33,7 @@ class TestExceptionHandlingRequestHandler(TestCase):
         self.assertEqual(('Some internal exception',), self.last_exception_info[1].args)
 
     def assert_has_answer(self, message_text: str, template: Template, args: dict):
-        request = RequestFaker.text_message(message_text)
+        request = RequestFaker.message(message_text)
         container = RequestContainer(request)
 
         self.rh.handle(container)
@@ -45,7 +45,7 @@ class TestExceptionHandlingRequestHandler(TestCase):
         self.assertEqual(args, response.args)
 
     def assert_no_answer(self, message_text: str):
-        request = RequestFaker.text_message(message_text)
+        request = RequestFaker.message(message_text)
         container = RequestContainer(request)
         self.rh.handle(container)
         self.assertEqual(0, len(container.responses))

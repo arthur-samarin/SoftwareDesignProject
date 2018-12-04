@@ -1,3 +1,5 @@
+from typing import List
+
 from app.core import Game
 
 
@@ -18,3 +20,10 @@ class GamesRegistry:
         l = list(self.games_dict.values())
         l.sort(key=lambda game: game.name)
         return l
+
+    @staticmethod
+    def from_games(games: List[Game]) -> 'GamesRegistry':
+        r = GamesRegistry()
+        for g in games:
+            r.register(g)
+        return r

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 
 class Language:
@@ -30,7 +30,14 @@ class LanguageRegistry:
     def get_by_display_name(self, name: str) -> Optional[Language]:
         return self.languages_dict_by_display_name.get(name)
 
-    def get_languages_list(self):
+    def get_languages_list(self) -> List[Language]:
         l = list(self.languages_dict_by_display_name.values())
         l.sort(key=lambda game: game.display_name)
         return l
+
+    @staticmethod
+    def from_languages(languages: List[Language]) -> 'LanguageRegistry':
+        r = LanguageRegistry()
+        for l in languages:
+            r.register(l)
+        return r

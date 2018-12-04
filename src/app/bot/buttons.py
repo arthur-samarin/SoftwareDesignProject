@@ -1,7 +1,7 @@
-button_solutions_list = '🕹 Игры'
+button_games = '🕹 Игры'
 button_about = '❓ О боте'
 
-default_set = [[button_solutions_list, button_about]]
+default_set = [[button_games, button_about]]
 
 button_upload = '✉️️ Загрузить решение'
 button_rename = '🏷 Переименовать'

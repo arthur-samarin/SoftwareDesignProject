@@ -1,14 +1,13 @@
-from unittest import TestCase
-
-from app import Components
-from app.bot import AppRequestHandler, templates, buttons
-from app.bot.mvc import Template, RequestContainer, ResponseReplyTemplate
-from test.bot import RequestFaker
+from app.bot import templates, buttons
+from test.bot import AppTestCase
 
 
-class TestBasicCommands(TestCase):
+class TestBasicCommands(AppTestCase):
     def setUp(self):
-        self.rh = AppRequestHandler(Components())
+        self.set_up_app()
+
+    def tearDown(self) -> None:
+        self.tear_down_app()
 
     def test_start(self):
         self.assert_has_answer('/start', templates.start_message)
@@ -16,13 +15,5 @@ class TestBasicCommands(TestCase):
     def test_about(self):
         self.assert_has_answer(buttons.button_about, templates.about_bot)
 
-    def assert_has_answer(self, message_text: str, template: Template):
-        request = RequestFaker.text_message(message_text)
-        container = RequestContainer(request)
-
-        self.rh.handle(container)
-
-        self.assertEqual(1, len(container.responses))
-        response = container.responses[0]
-        self.assertIsInstance(response, ResponseReplyTemplate)
-        self.assertEqual(template, response.template)
+    def test_unknown_command(self):
+        self.assert_has_answer('1u133os8wo', templates.main_message)
