@@ -19,6 +19,7 @@ class Solution(Base):
     language_name = Column(String)
     game_name = Column(String)
     rating = Column(Integer)
+    version = Column(Integer)
 
     @property
     def source_code(self) -> SourceCode:

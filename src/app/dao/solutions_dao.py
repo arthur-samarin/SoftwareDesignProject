@@ -13,6 +13,9 @@ class SolutionsDao:
             solution = self.find_solution(creator_id, game_name)
             if solution is None:
                 solution = Solution(creator_id=creator_id, game_name=game_name)
+                solution.version = 1
+            else:
+                solution.version += 1
 
             solution.source_code = source_code
             s.add(solution)
