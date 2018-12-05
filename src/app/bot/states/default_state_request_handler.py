@@ -73,11 +73,16 @@ class DefaultRequestHandlerState(RequestHandlerState):
                                 new_rating1, new_rating2 = self.components.rating_system.update_rating(s1.rating, s2.rating, v.outcome)
                                 s1.rating = new_rating1
                                 s2.rating = new_rating2
+
+                        args = {
+                            'verdict': v
+                        }
+                        self.components.notification_service.notify_user(solution_1.creator_id,
+                                                                         templates.duel_result_notification, args)
+                        self.components.notification_service.notify_user(solution_2.creator_id,
+                                                                         templates.duel_result_notification, args)
                     except:
                         logger.exception('Error handling finished duel')
-
-                    self.components.notification_service.notify_user(solution_1.creator_id, templates.duel_result_notification, {})
-                    self.components.notification_service.notify_user(solution_2.creator_id, templates.duel_result_notification, {})
 
                 verdict_future.add_done_callback(on_duel_finished)
             else:
