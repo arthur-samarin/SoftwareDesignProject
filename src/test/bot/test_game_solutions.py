@@ -77,3 +77,11 @@ class TestGameSolutions(AppTestCase):
         self.assertEqual(sol.language_name, self.l1.name)
         self.assertEqual(sol.filename, 'ddd.py')
         self.assertEqual(sol.code, b'print()')
+
+    def test_solution_challenge_link(self) -> None:
+        # Create solution in database
+        self.components.solutions_dao.create_solution(42, self.g2.name, SourceCode('ddd.py', b'print()', self.l1.name))
+        # /i_<game> -> challenge
+        self.assert_has_answer('/i_' + self.g2.name, templates.solution_info)
+        args = self.assert_has_answer(buttons.button_challenge, templates.challenge_link)
+        self.assertEqual(args['link'], '/duel_g2_42')

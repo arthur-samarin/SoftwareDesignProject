@@ -47,6 +47,9 @@ class AppTestCase(TestCase):
         self.assertIsInstance(response, ResponseReplyTemplate)
         self.assertEqual(template, response.template)
 
+        # Test that message can be constructed without errors
+        response.get_content()
+
         return response.args
 
     def assert_has_answers(self, message_content: Union[FileHandle, str], template_1: Template, template_2: Template) -> dict:
@@ -56,11 +59,13 @@ class AppTestCase(TestCase):
         self.rh.handle(container)
 
         self.assertEqual(2, len(container.responses))
-        response = container.responses[0]
-        self.assertIsInstance(response, ResponseReplyTemplate)
-        self.assertEqual(template_1, response.template)
-        response = container.responses[1]
-        self.assertIsInstance(response, ResponseReplyTemplate)
-        self.assertEqual(template_2, response.template)
+        response1 = container.responses[0]
+        self.assertIsInstance(response1, ResponseReplyTemplate)
+        self.assertEqual(template_1, response1.template)
+        response1.get_content()
+        response2 = container.responses[1]
+        self.assertIsInstance(response2, ResponseReplyTemplate)
+        self.assertEqual(template_2, response2.template)
+        response2.get_content()
 
         return container.responses[1].args

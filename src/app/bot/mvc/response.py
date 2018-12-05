@@ -2,7 +2,7 @@ from typing import Optional
 
 from telegram import Bot, Message, Chat, ReplyKeyboardMarkup
 
-from app.bot.mvc import Request, Template
+from app.bot.mvc import Request, Template, MessageContent
 
 
 class Response:
@@ -24,7 +24,7 @@ class ResponseReplyTemplate(Response):
         message: Message = request.update.message
         request_message_id = message.message_id if message else None
 
-        message_content = self.template.create_message(self.args)
+        message_content = self.get_content()
         text = message_content.text
         reply_markup = ReplyKeyboardMarkup(keyboard=message_content.buttons,
                                            resize_keyboard=True) if message_content.buttons else None
@@ -32,3 +32,5 @@ class ResponseReplyTemplate(Response):
         bot.send_message(chat.id, text, reply_markup=reply_markup,
                          parse_mode='html', disable_web_page_preview=True, reply_to_message_id=request_message_id)
 
+    def get_content(self) -> MessageContent:
+        return self.template.create_message(self.args)
