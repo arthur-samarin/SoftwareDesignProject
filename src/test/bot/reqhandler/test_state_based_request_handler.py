@@ -20,9 +20,9 @@ class StateA(RequestHandlerState):
         })
 
         if message_text == 'SwitchB':
-            state_changer.change(StateB())
+            state_changer.change(StateB(), request_container)
         elif message_text == 'SwitchDefault':
-            state_changer.change(None)
+            state_changer.change(None, request_container)
 
 
 class StateB(RequestHandlerState):
@@ -62,7 +62,7 @@ class TestStateBasedRequestHandler(TestCase):
         self.assertEqual(4, self.handle_and_get_counter(2, 'A'))
 
     def handle_and_get_counter(self, user_id, message):
-        request = RequestFaker.text_message(message, user_id=user_id)
+        request = RequestFaker.message(message, user_id=user_id)
         request_container = RequestContainer(request)
         self.handler.handle(request_container)
 

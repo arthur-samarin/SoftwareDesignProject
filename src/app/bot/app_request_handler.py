@@ -1,17 +1,18 @@
 import logging
 
-from app.bot import DefaultRequestHandlerState
+from app import Components
 from app.bot.mvc import RequestHandler, RequestContainer, Request
 from app.bot.reqhandler import StateBasedRequestHandler, ExceptionHandlingRequestHandler
+from app.bot.states import DefaultRequestHandlerState
 
 logger = logging.getLogger(__name__)
 
 
 class AppRequestHandler(RequestHandler):
-    def __init__(self):
+    def __init__(self, components: Components):
         state_based_handler = StateBasedRequestHandler(
             key_extractor=StateBasedRequestHandler.chat_id_key_extractor,
-            default_state=DefaultRequestHandlerState()
+            default_state=DefaultRequestHandlerState(components)
         )
         self._wrapped = ExceptionHandlingRequestHandler(state_based_handler, self.__handle_internal_exception)
 

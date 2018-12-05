@@ -13,7 +13,7 @@ class TestTemplateResponse(TestCase):
         template = Template.constant(MessageContent(text=text))
 
         bot_mock = Mock(spec=Bot)
-        request = RequestFaker.text_message()
+        request = RequestFaker.message()
         ResponseReplyTemplate(template).send(bot_mock, request)
 
         bot_mock.send_message.assert_called_once()
@@ -31,7 +31,7 @@ class TestTemplateResponse(TestCase):
         ]))
 
         bot_mock = Mock(spec=Bot)
-        request = RequestFaker.text_message()
+        request = RequestFaker.message()
         ResponseReplyTemplate(template).send(bot_mock, request)
 
         bot_mock.send_message.assert_called_once()
