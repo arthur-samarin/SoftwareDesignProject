@@ -44,7 +44,8 @@ class Database:
                 filename TEXT NOT NULL, 
                 code BYTES NOT NULL, 
                 language_name TEXT NOT NULL, 
-                game_name TEXT NOT NULL
+                game_name TEXT NOT NULL,
+                rating INTEGER NULL
             );""",
                 """CREATE UNIQUE INDEX IF NOT EXISTS solutions_creator_id_game_name_unique 
                           ON solutions (creator_id, game_name);"""

@@ -18,6 +18,7 @@ class Solution(Base):
     code = Column(LargeBinary)
     language_name = Column(String)
     game_name = Column(String)
+    rating = Column(Integer)
 
     @property
     def source_code(self) -> SourceCode:
