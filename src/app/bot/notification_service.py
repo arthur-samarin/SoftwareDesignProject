@@ -21,7 +21,7 @@ class BotNotificationService(NotificationService):
     def notify_user(self, user_id: int, template: Template, args: dict):
         try:
             content = template.create_message(args)
-            reply_markup = ReplyKeyboardMarkup(content.buttons) if content.buttons else None
+            reply_markup = ReplyKeyboardMarkup(content.buttons, resize_keyboard=True) if content.buttons else None
             self.bot.send_message(user_id, content.text, parse_mode='html', reply_markup=reply_markup)
         except:
             logger.exception('Error sending notification to user')
