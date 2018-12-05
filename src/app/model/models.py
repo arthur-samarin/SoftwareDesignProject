@@ -33,7 +33,13 @@ class Solution(Base):
 
     @property
     def name_as_html(self) -> str:
-        return html.escape(self.name) if self.name else '[без имени]'
+        name_html = html.escape(self.name) if self.name else '[без имени]'
+        link_url = 'tg://user?id={}'.format(self.creator_id)
+        return '<a href="{}">{}</a>'.format(link_url, name_html)
+
+    @property
+    def name_rating_as_html(self) -> str:
+        return self.name_as_html + ' 〽️' + (str(self.rating) if self.rating is not None else '-')
 
     def create_link(self) -> SolutionLink:
         return SolutionLink(self.game_name, self.creator_id)

@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import app.bot.buttons as buttons
 from app.bot.mvc import Template, MessageContent
-from app.core import Game
+from app.core import Game, GameOutcome
 from app.core.checksys import GameVerdict
 from app.model import Solution
 from app.util import group_by_k
@@ -49,7 +49,7 @@ class _SolutionsList(Template):
 
             solution: Solution = game_name_to_solution.get(game.name)
             if solution is not None:
-                text += solution.name_as_html
+                text += solution.name_rating_as_html
             else:
                 text += '<i>[нет решения]</i>'
 
@@ -65,15 +65,20 @@ solutions_list = _SolutionsList()
 class _SolutionInfo(Template):
     def create_message(self, args: dict) -> MessageContent:
         game: Game = args['game']
+        top_solutions: List[Solution] = args['top']
         solution: Optional[Solution] = args['solution']
 
         text = f'<b>🕹 {game.display_name}</b>\n\n'
         if solution:
-            text += solution.name_as_html + '\n'
+            text += solution.name_rating_as_html + '\n'
             text += 'Язык: ' + solution.language_name + '\n'
-            text += '\n'
         else:
             text += '<i>Решения нет</i>\n'
+
+        text += '\n'
+        for i, s in enumerate(top_solutions):
+            index = i + 1
+            text += '<b>#{}</b> {}\n{}\n'.format(index, s.name_rating_as_html, s.create_link().to_command())
 
         return MessageContent(text, buttons.solution_actions_set if solution else buttons.no_solution_actions_set)
 
@@ -92,9 +97,48 @@ choose_language = _ChooseLanguage()
 
 class _DuelResultNotification(Template):
     def create_message(self, args: dict) -> MessageContent:
+        user_id = args['user_id']
+        sol1: Solution = args['sol1']
+        sol2: Solution = args['sol2']
+        or1, or2 = args['old_rating']
+        nr1, nr2 = args['new_rating']
         verdict: GameVerdict = args['verdict']
         outcome = verdict.outcome
-        return MessageContent('Дуэль завершена! ' + outcome.name, buttons.default_set)
+
+        def format_solution(s: Solution):
+            return '<b>{}</b>'.format(s.name_as_html) if s.creator_id == user_id else s.name_as_html
+
+        # Кто с кем (своё жирное)
+        text = '<b>⚔️ Состоялась дуэль! ⚔️</b>\n'
+        text += format_solution(sol1) + ' <i>VS</i> ' + format_solution(sol2) + '\n\n'
+
+        # Кто победил
+        if verdict.outcome == GameOutcome.FIRST_WIN:
+            text += '<b>Победитель: </b> игрок 1, ' + format_solution(sol1)
+        elif verdict.outcome == GameOutcome.TIE:
+            text += '<b>Ничья</b>'
+        else:
+            text += '<b>Победитель: </b> игрок 2, ' + format_solution(sol2)
+        text += '\n\n'
+
+        # Изменение рейтинга
+        text += '<b>Рейтинг</b>: '
+        if or1 == nr1 and or2 == nr2:
+            text += 'без изменений'
+        else:
+            def format_rating_change(old_r, new_r):
+                if old_r is not None and new_r is not None:
+                    delta = new_r - old_r
+                    delta_str = ('+' + str(delta)) if delta > 0 else str(delta)
+                    return f'{old_r} ➡️ {new_r} ({delta_str})'
+                else:
+                    return str(new_r)
+
+            text += '\n'
+            text += '<b>Игрок 1: </b>' + format_rating_change(or1, nr1) + '\n'
+            text += '<b>Игрок 2: </b>' + format_rating_change(or2, nr2) + '\n'
+
+        return MessageContent(text)
 
 
 duel_result_notification = _DuelResultNotification()

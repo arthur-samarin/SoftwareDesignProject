@@ -64,23 +64,36 @@ class DefaultRequestHandlerState(RequestHandlerState):
                 def on_duel_finished(_):
                     try:
                         v: GameVerdict = verdict_future.result()
+                        old_rating = (solution_1.rating, solution_2.rating)
+                        new_rating = old_rating
 
                         if solution_1.creator_id != solution_2.creator_id:
                             # Update rating
                             with self.components.database.tx():
                                 s1 = self.components.solutions_dao.find_by_id(solution_1.id)
                                 s2 = self.components.solutions_dao.find_by_id(solution_2.id)
+                                old_rating = (s1.rating, s2.rating)
                                 new_rating1, new_rating2 = self.components.rating_system.update_rating(s1.rating, s2.rating, v.outcome)
                                 s1.rating = new_rating1
                                 s2.rating = new_rating2
+                                new_rating = (new_rating1, new_rating2)
 
                         args = {
-                            'verdict': v
+                            'verdict': v,
+                            'sol1': solution_1,
+                            'sol2': solution_2,
+                            'old_rating': old_rating,
+                            'new_rating': new_rating
                         }
+
                         self.components.notification_service.notify_user(solution_1.creator_id,
-                                                                         templates.duel_result_notification, args)
-                        self.components.notification_service.notify_user(solution_2.creator_id,
-                                                                         templates.duel_result_notification, args)
+                                                                         templates.duel_result_notification,
+                                                                         {**args, 'user_id': solution_1.creator_id})
+                        
+                        if solution_1.creator_id != solution_2.creator_id:
+                            self.components.notification_service.notify_user(solution_2.creator_id,
+                                                                            templates.duel_result_notification,
+                                                                            {**args, 'user_id': solution_2.creator_id})
                     except:
                         logger.exception('Error handling finished duel')
 

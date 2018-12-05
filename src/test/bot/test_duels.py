@@ -92,4 +92,37 @@ class TestGameSolutions(AppTestCase):
         self.csys.outcome = GameOutcome.FIRST_WIN
         self.assert_has_answer(s1_cmd, templates.duel_started, user_id=2)
         # Check notifications
-        self.notification_service.notify_user.assert_called()
+        self.assert_duel_notifications_are_valid()
+
+        # The same again: check formatting when ratings are set before duel
+        self.csys.outcome = GameOutcome.SECOND_WIN
+        self.assert_has_answer(s1_cmd, templates.duel_started, user_id=2)
+        self.assert_duel_notifications_are_valid()
+
+        # And with TIE
+        self.csys.outcome = GameOutcome.TIE
+        self.assert_has_answer(s1_cmd, templates.duel_started, user_id=2)
+        self.assert_duel_notifications_are_valid()
+
+    def assert_duel_notifications_are_valid(self, num_notifications: int = 2):
+        calls = list(self.notification_service.notify_user.mock_calls)
+        self.assertEqual(len(calls), num_notifications)
+        notified_users = []
+        for call in calls:
+            _, (user_id, template, args), _ = call
+            notified_users.append(user_id)
+            # Check template validity
+            template.create_message(args)
+        self.assertEqual(set(notified_users), set(range(1, num_notifications + 1)))
+
+        # Reset calls
+        self.notification_service.notify_user.reset_mock()
+
+    def test_duels_with_self_send_one_notification(self):
+        # Determine duel commands
+        s1_cmd = self.components.solutions_dao.find_solution(1, self.g1.name).create_link().to_command()
+        # Duel! 1 duels with 2 and wins
+        self.csys.outcome = GameOutcome.FIRST_WIN
+        self.assert_has_answer(s1_cmd, templates.duel_started, user_id=1)
+        # Check notifications
+        self.assert_duel_notifications_are_valid(num_notifications=1)

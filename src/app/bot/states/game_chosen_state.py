@@ -111,7 +111,8 @@ class GameChosenState(RequestHandlerState):
         solution = self.solutions_dao.find_solution(req.effective_user_id, self.game.name)
         request_container.add_template_reply(templates.solution_info, {
             'solution': solution,
-            'game': self.game
+            'game': self.game,
+            'top': self.solutions_dao.solutions_top(self.game.name, 5)
         })
 
     def handle(self, state_changer: StateChanger, request_container: RequestContainer) -> None:
