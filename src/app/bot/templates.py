@@ -49,7 +49,7 @@ class _SolutionsList(Template):
 
             solution: Solution = game_name_to_solution.get(game.name)
             if solution is not None:
-                text += solution.name_as_html
+                text += solution.name_rating_as_html
             else:
                 text += '<i>[нет решения]</i>'
 
@@ -69,7 +69,7 @@ class _SolutionInfo(Template):
 
         text = f'<b>🕹 {game.display_name}</b>\n\n'
         if solution:
-            text += solution.name_as_html + '\n'
+            text += solution.name_rating_as_html + '\n'
             text += 'Язык: ' + solution.language_name + '\n'
             text += '\n'
         else:
