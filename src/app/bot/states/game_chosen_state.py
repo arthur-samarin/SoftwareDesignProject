@@ -1,6 +1,6 @@
 import app.bot.buttons as buttons
 import app.bot.templates as templates
-from app import Components
+from app.bot import Components
 from app.bot.exceptions import NoSolutionException
 from app.bot.mvc import RequestContainer
 from app.bot.reqhandler import RequestHandlerState, StateChanger

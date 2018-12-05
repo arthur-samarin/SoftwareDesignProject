@@ -37,3 +37,7 @@ class Solution(Base):
 
     def create_link(self) -> SolutionLink:
         return SolutionLink(self.game_name, self.creator_id)
+
+    @property
+    def id_with_version(self):
+        return '{}_{}'.format(self.id, self.version)

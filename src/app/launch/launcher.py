@@ -2,7 +2,7 @@ import logging
 from telegram import Bot
 from telegram.utils.request import Request
 
-from app import Components
+from app.bot import Components
 from app.bot import AppRequestHandler
 from app.bot.mvc import MvcBotRunner
 from app.core import GamesRegistry, Game, LanguageRegistry, Language

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from app.core import GameOutcome
+from app.core import GameOutcome, Game
 from app.model import SourceCode
 
 
@@ -20,5 +20,5 @@ class GameVerdict:
 
 class CheckingSystem(ABC):
     @abstractmethod
-    def evaluate(self, id1: str, source1: SourceCode, id2: str, source2: SourceCode) -> GameVerdict:
+    def evaluate(self, game: Game, id1: str, source1: SourceCode, id2: str, source2: SourceCode) -> GameVerdict:
         raise NotImplementedError()

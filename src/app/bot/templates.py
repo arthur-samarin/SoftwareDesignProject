@@ -3,6 +3,7 @@ from typing import List, Optional
 import app.bot.buttons as buttons
 from app.bot.mvc import Template, MessageContent
 from app.core import Game
+from app.core.checksys import GameVerdict
 from app.model import Solution
 from app.util import group_by_k
 
@@ -25,6 +26,8 @@ about_bot = Template.constant(MessageContent('''
 Этот бот сделан в качесте проекта по курсу проектирования ПО.
 ''', buttons.default_set))
 
+duel_started = Template.constant_html('Ты бросил вызов! Жди результата.')
+duel_failed_bad_link = Template.constant_html('Что-то странное. Не могу найти решение по ссылке.')
 upload_solution = Template.constant(MessageContent('Отправь мне файл с кодом твоего решения', buttons.cancel_button_set))
 upload_solution_too_big = Template.constant(MessageContent('Размер решения не должен превышать 1Мб', buttons.cancel_button_set))
 upload_solution_ok = Template.constant(MessageContent('Решение обновлено'))
@@ -85,3 +88,13 @@ class _ChooseLanguage(Template):
 
 
 choose_language = _ChooseLanguage()
+
+
+class _DuelResultNotification(Template):
+    def create_message(self, args: dict) -> MessageContent:
+        verdict: GameVerdict = args['verdict']
+        outcome = verdict.outcome
+        return MessageContent('Дуэль завершена! ' + outcome.name, buttons.default_set)
+
+
+duel_result_notification = _DuelResultNotification()

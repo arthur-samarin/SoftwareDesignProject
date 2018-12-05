@@ -1,34 +1,43 @@
 from unittest import TestCase
 
+from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List, Union
 
-from app import Components
-from app.bot import AppRequestHandler
+from app.bot import Components, AppRequestHandler
 from app.bot.mvc import Template, RequestContainer, ResponseReplyTemplate, FileHandle
-from app.core import Game, GamesRegistry, Language, LanguageRegistry
+from app.bot.notification_service import NotificationService
+from app.core import Game, GamesRegistry, Language, LanguageRegistry, RatingSystem
+from app.core.checksys import CheckingSystem
+from app.core.checksys.async_checking_system import SyncCheckingSystem
 from app.dao.solutions_dao import SolutionsDao
 from test.bot import RequestFaker
 from test.dao import DatabaseTestHelper
 
 
 class AppTestCase(TestCase):
-    def set_up_app(self, games: List[Game] = None, languages: List[Language] = None) -> None:
+    def set_up_app(self, games: List[Game] = None, languages: List[Language] = None, check_sys: CheckingSystem = None,
+                   rating_system: RatingSystem = None, notification_service: NotificationService = None) -> None:
         self.dth = DatabaseTestHelper()
         self.dth.set_up()
+        self.thread_pool = ThreadPoolExecutor(2)
 
         self.components = Components(
             database=self.dth.db,
             solutions_dao=SolutionsDao(self.dth.db),
             games_registry=GamesRegistry.from_games(games or []),
-            languages_registry=LanguageRegistry.from_languages(languages or [])
+            languages_registry=LanguageRegistry.from_languages(languages or []),
+            checking_system=(SyncCheckingSystem(check_sys) if check_sys else None),
+            rating_system=rating_system,
+            notification_service=notification_service
         )
         self.rh = AppRequestHandler(self.components)
 
     def tear_down_app(self) -> None:
         self.dth.tear_down()
+        self.thread_pool.shutdown()
 
-    def assert_has_answer(self, message_content: Union[FileHandle, str], template: Template) -> dict:
-        request = RequestFaker.message(message_content)
+    def assert_has_answer(self, message_content: Union[FileHandle, str], template: Template, user_id: int = 42) -> dict:
+        request = RequestFaker.message(message_content, user_id=user_id)
         container = RequestContainer(request)
 
         self.rh.handle(container)

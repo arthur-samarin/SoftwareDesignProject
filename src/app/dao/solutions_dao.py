@@ -22,6 +22,10 @@ class SolutionsDao:
 
             return solution
 
+    def find_by_id(self, id: int) -> Solution:
+        with self.db.tx() as s:
+            return s.query(Solution).filter(Solution.id == id).one()
+
     def find_solution(self, creator_id: int, game_name: str) -> Optional[Solution]:
         with self.db.tx() as s:
             solution = s.query(Solution).filter(Solution.creator_id == creator_id,

@@ -1,6 +1,6 @@
 import logging
 
-from app import Components
+from app.bot import Components
 from app.bot.mvc import RequestHandler, RequestContainer, Request
 from app.bot.reqhandler import StateBasedRequestHandler, ExceptionHandlingRequestHandler
 from app.bot.states import DefaultRequestHandlerState
