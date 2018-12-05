@@ -33,7 +33,9 @@ class Solution(Base):
 
     @property
     def name_as_html(self) -> str:
-        return html.escape(self.name) if self.name else '[без имени]'
+        name_html = html.escape(self.name) if self.name else '[без имени]'
+        link_url = 'tg://user?id={}'.format(self.creator_id)
+        return '<a href="{}">{}</a>'.format(link_url, name_html)
 
     @property
     def name_rating_as_html(self) -> str:

@@ -35,3 +35,9 @@ class SolutionsDao:
     def find_solutions_by_creator(self, creator_id: int) -> List[Solution]:
         with self.db.tx() as s:
             return s.query(Solution).filter(Solution.creator_id == creator_id).all()
+
+    def solutions_top(self, game_name: str, limit: int):
+        with self.db.tx() as s:
+            return list(s.query(Solution).filter(Solution.game_name == game_name, Solution.rating != None)\
+                    .order_by(Solution.rating.desc()).limit(limit).all())
+

@@ -65,15 +65,20 @@ solutions_list = _SolutionsList()
 class _SolutionInfo(Template):
     def create_message(self, args: dict) -> MessageContent:
         game: Game = args['game']
+        top_solutions: List[Solution] = args['top']
         solution: Optional[Solution] = args['solution']
 
         text = f'<b>🕹 {game.display_name}</b>\n\n'
         if solution:
             text += solution.name_rating_as_html + '\n'
             text += 'Язык: ' + solution.language_name + '\n'
-            text += '\n'
         else:
             text += '<i>Решения нет</i>\n'
+
+        text += '\n'
+        for i, s in enumerate(top_solutions):
+            index = i + 1
+            text += '<b>#{}</b> {}\n{}\n'.format(index, s.name_rating_as_html, s.create_link().to_command())
 
         return MessageContent(text, buttons.solution_actions_set if solution else buttons.no_solution_actions_set)
 
