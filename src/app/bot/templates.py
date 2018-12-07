@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-import app.bot.buttons as buttons
+from app.bot import buttons
 from app.bot.mvc import Template, MessageContent
 from app.core import Game, GameOutcome
 from app.core.checksys import GameVerdict

@@ -1,4 +1,4 @@
-import app.bot.templates as templates
+from app.bot import templates
 from app.bot.reqhandler import BotException
 from app.core import Game
 

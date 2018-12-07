@@ -1,5 +1,4 @@
-import app.bot.buttons as buttons
-import app.bot.templates as templates
+from app.bot import buttons, templates
 from app.bot import Components
 from app.bot.exceptions import NoSolutionException
 from app.bot.mvc import RequestContainer
