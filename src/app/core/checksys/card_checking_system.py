@@ -50,7 +50,7 @@ class CheckSystemImpl(CheckingSystem):
                 self.clients[0] = self.start_solution(s1_file, l1, 0, lf1)
                 self.clients[1] = self.start_solution(s2_file, l2, 1, lf2)
 
-                self.start_game(game)
+                return self.start_game(game)
 
     @staticmethod
     def __compile(file: str, language: Language) -> bool:
@@ -101,6 +101,8 @@ class CheckSystemImpl(CheckingSystem):
             self.send_data(id, result)
             answer['state'] = 'move'
             self.send_data(1 - id, result)
+
+        return GameVerdict(GameOutcome.FIRST_WIN, GameOutcomeReason.OK)
 
     def get_initial_data(self, game, id):
         data = game.get_initial_data_for_player(id)
