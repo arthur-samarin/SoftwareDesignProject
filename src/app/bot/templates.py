@@ -106,7 +106,7 @@ class _DuelResultNotification(Template):
         outcome = verdict.outcome
 
         def format_solution(s: Solution):
-            return '<b>{}</b>'.format(s.name_as_html) if s.creator_id == user_id else s.name_as_html
+            return '👤{}'.format(s.name_as_html) if s.creator_id == user_id else s.name_as_html
 
         # Кто с кем (своё жирное)
         text = '<b>⚔️ Состоялась дуэль! ⚔️</b>\n'
