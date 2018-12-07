@@ -133,7 +133,7 @@ class CheckSystemImpl(CheckingSystem):
 
 if __name__ == '__main__':
     bytes = None
-    with open('test.py', 'rb') as f:
+    with open('strategy.py', 'rb') as f:
         bytes = f.read()
 
     game = CardGame()
