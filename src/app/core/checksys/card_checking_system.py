@@ -47,10 +47,18 @@ class CheckSystemImpl(CheckingSystem):
         # Start solutions
         with open(s1_logfile, 'wb') as lf1:
             with open(s2_logfile, 'wb') as lf2:
-                self.start_solution(s1_file, l1, game, 0, lf1)
-                self.start_solution(s2_file, l2, game, 1, lf2)
+                clients = {}
+                clients[0] = self.start_solution(s1_file, l1, game, 0, lf1)
+                clients[1] = self.start_solution(s2_file, l2, game, 1, lf2)
 
-                return self.start_game(game)
+                for i in range(2):
+                    initData = {}
+                    initData['state'] = 'init'
+                    initData['gameData'] = self.get_initial_data(game, i)
+
+                    self.send_data(clients, i, initData)
+
+                return self.start_game(clients, game)
 
     @staticmethod
     def __compile(file: str, language: Language) -> bool:
@@ -64,38 +72,33 @@ class CheckSystemImpl(CheckingSystem):
 
     def start_solution(self, file: str, language: Language,game, id, log_file):
         run_command = language.get_run_command(file) + [str(id)]
-        self.clients[id] = subprocess.Popen(run_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-
-        initData = {}
-        initData['state'] = 'init'
-        initData['gameData'] = self.get_initial_data(game, id)
-
-        self.send_data(id, initData)
+        client = subprocess.Popen(run_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        return client
 
 
-    def send_data(self, id, data):
-        self.clients[id].stdin.write((json.dumps(data) + '\n').encode())
-        self.clients[id].stdin.flush()
+    def send_data(self, clients, id, data):
+        clients[id].stdin.write((json.dumps(data) + '\n').encode())
+        clients[id].stdin.flush()
 
-    def read_data(self, id):
-        line = self.clients[id].stdout.readline()
+    def read_data(self, clients, id):
+        line = clients[id].stdout.readline()
         return json.loads(line)
 
-    def start_game(self, game):
+    def start_game(self, clients, game):
         final_result = None
         id = 0
         answer = {"state": "move", "gameData": {"cardsOnTable": []}}
-        self.send_data(id, answer)
+        self.send_data(clients, id, answer)
         while (True):
-            data = self.read_data(id)
+            data = self.read_data(clients, id)
             print('recieve: ', data)
             result = self.handle_player_move(game, id, data)
             if result == {}:
                 result = self.check_win(game)
                 answer["state"] = "end"
                 answer["gameData"] = result
-                self.send_data(0, answer)
-                self.send_data(1, answer)
+                self.send_data(clients, 0, answer)
+                self.send_data(clients, 1, answer)
                 final_result = result
                 print('send: ', answer)
                 break
@@ -103,9 +106,9 @@ class CheckSystemImpl(CheckingSystem):
             answer = {}
             answer['state'] = 'wait'
             answer['gameData'] = result
-            self.send_data(id, answer)
+            self.send_data(clients, id, answer)
             answer['state'] = 'move'
-            self.send_data(1 - id, answer)
+            self.send_data(clients, 1 - id, answer)
 
             print('send: ', answer)
             id = 1 - id
