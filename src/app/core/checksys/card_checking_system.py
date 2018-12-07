@@ -7,7 +7,8 @@ from Card import Card
 from random import choice, shuffle
 import time
 
-from app.core.checksys import CheckingSystem, GameVerdict
+from app.core import GameOutcome
+from app.core.checksys import CheckingSystem, GameVerdict, GameOutcomeReason
 from app.model import SourceCode
 
 port = 10001
@@ -269,7 +270,7 @@ class Runner(protocol.ServerFactory):
         return self.game.CheckWin()
 
 
-result = None
+result = GameVerdict(GameOutcome.FIRST_WIN, GameOutcomeReason.OK)
 class check(CheckingSystem):
     def evaluate(self, game: Game, id1: str, source1: SourceCode, id2: str, source2: SourceCode) -> GameVerdict:
         global result
