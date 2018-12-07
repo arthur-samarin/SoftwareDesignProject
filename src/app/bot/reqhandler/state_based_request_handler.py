@@ -41,6 +41,15 @@ class StateBasedRequestHandler(RequestHandler):
             state = self.key_to_state[key] if key in self.key_to_state else self.default_state
             state.on_enter(container)
 
+    def change_state(self, new_state: Optional[RequestHandlerState], container: RequestContainer):
+        key = self.key_extractor(container.request)
+        if key is not None:
+            if new_state is not None:
+                self.key_to_state[key] = new_state
+            else:
+                self.key_to_state.pop(key)
+            self.handle_state_enter(container)
+
     def _handle_for_key(self, key: Any, request_container: RequestContainer) -> None:
         state_changer = self.__create_state_changer(key)
         state = self.key_to_state[key] if key in self.key_to_state else self.default_state
@@ -56,17 +65,9 @@ class StateChangerForKey(StateChanger):
         self.key = key
 
     def change(self, new_state_description: Optional[RequestHandlerState], request_container: RequestContainer) -> None:
-        self.__change_state(new_state_description, request_container)
+        self.request_handler.change_state(new_state_description, request_container)
 
     def change_and_handle(self, new_state_description: Optional[RequestHandlerState],
                           request_container: RequestContainer) -> None:
-        self.__change_state(new_state_description, request_container)
+        self.request_handler.change_state(new_state_description, request_container)
         self.request_handler._handle_for_key(self.key, request_container)
-
-    def __change_state(self, new_state_description: Optional[RequestHandlerState], request_container: RequestContainer) -> None:
-        if new_state_description is not None:
-            self.request_handler.key_to_state[self.key] = new_state_description
-        else:
-            self.request_handler.key_to_state.pop(self.key)
-
-        self.request_handler.handle_state_enter(request_container)

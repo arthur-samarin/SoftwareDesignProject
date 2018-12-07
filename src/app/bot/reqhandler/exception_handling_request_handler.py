@@ -17,6 +17,7 @@ class ExceptionHandlingRequestHandler(RequestHandler):
         try:
             self.wrapped.handle(container)
         except BotException as ex:
+            container.stop_handling()
             self.__handle_bot_exception(container, ex)
         except Exception:
             self.__handle_exception(container)

@@ -1,7 +1,7 @@
 from typing import Optional
 from unittest.mock import Mock
 
-from app.bot import templates
+from app.bot import templates, buttons
 from app.bot.notification_service import NotificationService
 from app.core import Game, Language, GameOutcome, RatingSystem
 from app.core.checksys import CheckingSystem, GameVerdict, GameOutcomeReason
@@ -126,3 +126,12 @@ class TestGameSolutions(AppTestCase):
         self.assert_has_answer(s1_cmd, templates.duel_started, user_id=1)
         # Check notifications
         self.assert_duel_notifications_are_valid(num_notifications=1)
+
+    def test_duels_must_not_reset_state(self):
+        # Enter 'Game' state
+        self.assert_has_answer('/i_g1', templates.solution_info, user_id=1)
+        # Start duel
+        s1_cmd = self.components.solutions_dao.find_solution(1, self.g1.name).create_link().to_command()
+        self.assert_has_answer(s1_cmd, templates.duel_started, user_id=1)
+        # Try command that can work only in game state
+        self.assert_has_answer(buttons.button_rename, templates.rename_solution, user_id=1)

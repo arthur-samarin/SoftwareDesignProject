@@ -41,10 +41,11 @@ class GameSolutionChangeNameState(RequestHandlerState):
 
             request_container.add_template_reply(templates.rename_solution_ok, {})
             state_changer.change(GameChosenState(self.game, self.components), request_container)
-            return
         else:
             # Anything else -> show message
             self.on_enter(request_container)
+
+        request_container.stop_handling()
 
 
 class GameSolutionUploadState(RequestHandlerState):
@@ -97,6 +98,8 @@ class GameSolutionUploadState(RequestHandlerState):
             # Anything else -> show message
             self.on_enter(request_container)
 
+        request_container.stop_handling()
+
 
 class GameChosenState(RequestHandlerState):
     def __init__(self, game: Game, components: Components):
@@ -117,6 +120,7 @@ class GameChosenState(RequestHandlerState):
 
     def handle(self, state_changer: StateChanger, request_container: RequestContainer) -> None:
         req = request_container.request
+        request_container.stop_handling() # Stop handling by default
 
         if req.has_text(buttons.button_upload):
             # 'Upload Solution' -> change to upload state
@@ -133,5 +137,5 @@ class GameChosenState(RequestHandlerState):
                 'link': solution.create_link().to_command()
             })
         else:
-            # Unknown command: switch to default state
-            state_changer.change_and_handle(None, request_container)
+            # Unknown action: continue handling
+            request_container.continue_handling()
