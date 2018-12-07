@@ -1,58 +1,48 @@
 import collections
 import sys, json
 Card = collections.namedtuple('Card', ['rank', 'suit'])
-port = 0
-id = 0
 
-
-class Player(Protocol):
+class Player:
     _cards = {'spades': [], 'diamonds': [], 'clubs': [], 'hearts': []}
 
-    def connectionMade(self):
-        global id
-        self.transport.write(('{ "id" : ' + str(id) + '}').encode())
+    def __init__(self, id):
+        self._id = id
 
     def insert_cards(self, cards):
         for (rank, suit) in cards:
             self._cards[suit].append(rank)
 
-    def dataReceived(self, rData):
-        global id
-        print("-----")
+    def start(self):
+        while True:
+            data = json.loads(sys.stdin.readline())
+            gameData = data['gameData']
+            if data['state'] == 'end':
+                return
 
-        print(rData)
-        print("------")
+            if data['state'] == 'init':
+                self.power_rank = gameData['powerRanks']
+                self._trump = gameData['trump']
 
-        data = json.loads(rData)
-        gameData = data['gameData']
+            newCardId = 'newCards' + self._id
+            if newCardId in gameData:
+                newCards = gameData[newCardId]
+                self.insert_cards(newCards)
 
-        if data['state'] == 'end':
-            return
-        if data['state'] == 'init':
-            self.power_rank = gameData['powerRanks']
-            self._trump = gameData['trump']
+            if data['state'] == 'wait' or data['state'] == 'init':
+                continue
 
-        newCardId = 'newCards' + str(id)
-        if newCardId in gameData:
-            newCards = gameData[newCardId]
-            self.insert_cards(newCards)
+            cardsOnTable = gameData["cardsOnTable"]
 
-        if data['state'] == 'wait' or data['state'] == 'init':
-            return
+            result = {}
+            result["cardsOnTable"] = cardsOnTable
 
-        cardsOnTable = gameData["cardsOnTable"]
+            if len(cardsOnTable) % 2 == 0:
+                result["putCards"] = self.attack()
+            else:
+                (a, b) = cardsOnTable[-1]
+                result["putCards"] = self.protection(Card(a, b))
 
-        result = {}
-        result["cardsOnTable"] = cardsOnTable
-
-        if len(cardsOnTable) % 2 == 0:
-            result["putCards"] = self.attack()
-        else:
-            (a, b) = cardsOnTable[-1]
-            result["putCards"] = self.protection(Card(a, b))
-
-        result["id"] = id
-        self.transport.write(json.dumps(result).encode())
+            print(json.dumps(result))
 
     def get_min_rank(self, ranks):
         min_rank = ranks[0]
@@ -98,14 +88,5 @@ class Player(Protocol):
         return suitable_card
 
 
-class EchoClientFactory(ClientFactory):
-    def buildProtocol(self, addr):
-        return Player()
-
-
 if __name__ == "__main__":
-    id = int(sys.argv[1])
-    port = int(sys.argv[2])
-
-    with open('log-id' + str(id), 'w') as f:
-        f.write("hi")
+    Player(sys.argv[1]).start()

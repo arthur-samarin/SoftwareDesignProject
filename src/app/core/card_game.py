@@ -1,5 +1,5 @@
 import collections
-from random import choice
+from random import choice, shuffle
 
 from app.core import Game
 
@@ -29,7 +29,7 @@ class FrenchDeck:
 
 class CardGame(Game):
     def __init__(self):
-        super.__init__("Card", "Card")
+        super().__init__("Card", "Card")
         self._deck = FrenchDeck()
         self._trump = choice(self._deck.suits)
         self._attackPlayer = 0

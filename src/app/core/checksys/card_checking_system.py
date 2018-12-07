@@ -1,6 +1,7 @@
 import json
 
 from app.core import LanguageRegistry, Game, Language, GameOutcome
+from app.core.card_game import CardGame
 from app.core.checksys import CheckingSystem, GameVerdict, GameOutcomeReason
 from app.core.languages import CppLanguage, PythonLanguage
 from app.model import SourceCode
@@ -30,7 +31,6 @@ class CheckSystemImpl(CheckingSystem):
         s1_logfile = os.path.join(s1_dir, 'stderr.log')
         s2_logfile = os.path.join(s2_dir, 'stderr.log')
 
-        # Save solutions
         with open(s1_file, 'wb') as f:
             f.write(source1.code)
         with open(s2_file, 'wb') as f:
@@ -47,8 +47,8 @@ class CheckSystemImpl(CheckingSystem):
         # Start solutions
         with open(s1_logfile, 'wb') as lf1:
             with open(s2_logfile, 'wb') as lf2:
-                self.clients[0] = self.start_solution(s1_file, l1, 0, lf1)
-                self.clients[1] = self.start_solution(s2_file, l2, 1, lf2)
+                self.start_solution(s1_file, l1, game, 0, lf1)
+                self.start_solution(s2_file, l2, game, 1, lf2)
 
                 return self.start_game(game)
 
@@ -62,24 +62,24 @@ class CheckSystemImpl(CheckingSystem):
         else:
             return True
 
-    def start_solution(self, file: str, language: Language, id, log_file):
-        run_command = language.get_run_command(file)
-        process = subprocess.Popen(run_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log_file)
+    def start_solution(self, file: str, language: Language,game, id, log_file):
+        run_command = language.get_run_command(file) + [str(id)]
+        self.clients[id] = subprocess.Popen(run_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
         initData = {}
         initData['state'] = 'init'
-        initData['gameData'] = self.get_initial_data(id)
+        initData['gameData'] = self.get_initial_data(game, id)
 
         self.send_data(id, initData)
-        return process
 
 
     def send_data(self, id, data):
-        self.clients[id].stdin.write(json.dumps(data).encode())
+        self.clients[id].stdin.write((json.dumps(data) + '\n').encode())
         self.clients[id].stdin.flush()
 
     def read_data(self, id):
-        return json.loads(self.clients[id].stdout.readline())
+        line = self.clients[id].stdout.readline()
+        return json.loads(line)
 
     def start_game(self, game):
         final_result = None
@@ -88,22 +88,27 @@ class CheckSystemImpl(CheckingSystem):
         self.send_data(id, answer)
         while (True):
             data = self.read_data(id)
-            result = self.handle_player_move(id, data)
+            print('recieve: ', data)
+            result = self.handle_player_move(game, id, data)
             if result == {}:
-                result = self.check_win()
+                result = self.check_win(game)
                 answer["state"] = "end"
                 answer["gameData"] = result
-                self.send_data(0, result)
-                self.send_data(1, result)
+                self.send_data(0, answer)
+                self.send_data(1, answer)
                 final_result = result
+                print('send: ', answer)
                 break
 
             answer = {}
             answer['state'] = 'wait'
             answer['gameData'] = result
-            self.send_data(id, result)
+            self.send_data(id, answer)
             answer['state'] = 'move'
-            self.send_data(1 - id, result)
+            self.send_data(1 - id, answer)
+
+            print('send: ', answer)
+            id = 1 - id
 
         outcome = GameOutcome.TIE
         if result["win_id"] == 0:
@@ -130,13 +135,11 @@ if __name__ == '__main__':
     bytes = None
     with open('test.py', 'rb') as f:
         bytes = f.read()
-    src1 = SourceCode('testFromBytes.py', bytes, "py")
-    src2 = src1
 
-    game = Game('Cards', 'Cards')
+    game = CardGame()
     lr = LanguageRegistry.from_languages([
         PythonLanguage()
     ])
 
     impl = CheckSystemImpl(lr, 'rd')
-    impl.evaluate(game, '1', SourceCode('test.py', src1, 'python3'), '2', SourceCode('test2.py', src2, 'python3'))
+    impl.evaluate(game, '1', SourceCode('testA.py', bytes, 'python3'), '2', SourceCode('testB.py', bytes, 'python3'))
