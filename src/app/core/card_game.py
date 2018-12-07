@@ -99,12 +99,15 @@ class CardGame(Game):
         return result
 
     def check_win(self):
+        result = {}
+
         if len(self._deck) == 0:
             if self.playersCardCount[1] == 0 and self.playersCardCount[0] == 0:
-                return -1
+                result['win_id'] = -1
             for i in range(2):
                 if self.playersCardCount[i] == 0:
-                    return i
+                    result['win_id'] = i
+        return result
 
     @staticmethod
     def write_list_cards(l, f):

@@ -82,6 +82,7 @@ class CheckSystemImpl(CheckingSystem):
         return json.loads(self.clients[id].stdout.readline())
 
     def start_game(self, game):
+        final_result = None
         id = 0
         answer = {"state": "move", "gameData": {"cardsOnTable": []}}
         self.send_data(id, answer)
@@ -91,9 +92,11 @@ class CheckSystemImpl(CheckingSystem):
             if result == {}:
                 result = self.check_win()
                 answer["state"] = "end"
-                answer["gameData"] = str(result)
+                answer["gameData"] = result
                 self.send_data(0, result)
                 self.send_data(1, result)
+                final_result = result
+                break
 
             answer = {}
             answer['state'] = 'wait'
@@ -102,6 +105,12 @@ class CheckSystemImpl(CheckingSystem):
             answer['state'] = 'move'
             self.send_data(1 - id, result)
 
+        outcome = GameOutcome.TIE
+        if result["win_id"] == 0:
+            outcome = GameOutcome.FIRST_WIN
+        elif result["win_id"] == 1:
+            outcome = GameOutcome.SECOND_WIN
+            
         return GameVerdict(GameOutcome.FIRST_WIN, GameOutcomeReason.OK)
 
     def get_initial_data(self, game, id):
