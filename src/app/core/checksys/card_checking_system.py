@@ -110,7 +110,7 @@ class CheckSystemImpl(CheckingSystem):
             outcome = GameOutcome.FIRST_WIN
         elif result["win_id"] == 1:
             outcome = GameOutcome.SECOND_WIN
-            
+
         return GameVerdict(GameOutcome.FIRST_WIN, GameOutcomeReason.OK)
 
     def get_initial_data(self, game, id):
