@@ -23,15 +23,19 @@ class Player:
                 self.power_rank = gameData['powerRanks']
                 self._trump = gameData['trump']
 
-            newCardId = 'newCards' + self._id
-            if newCardId in gameData:
-                newCards = gameData[newCardId]
-                self.insert_cards(newCards)
+            cardsOnTable = []
+
+            if gameData is not None:
+                newCardId = 'newCards' + self._id
+                if newCardId in gameData:
+                    newCards = gameData[newCardId]
+                    self.insert_cards(newCards)
 
             if data['state'] == 'wait' or data['state'] == 'init':
                 continue
 
-            cardsOnTable = gameData["cardsOnTable"]
+            if gameData is not None and 'cardsOnTable' in gameData:
+                cardsOnTable = gameData["cardsOnTable"]
 
             result = {}
             result["cardsOnTable"] = cardsOnTable

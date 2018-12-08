@@ -85,12 +85,18 @@ class CheckSystemImpl(CheckingSystem):
         return json.loads(line)
 
     def start_game(self, clients, game):
+        reason = GameOutcomeReason.OK
         final_result = None
         id = 0
-        answer = {"state": "move", "gameData": {"cardsOnTable": []}}
+        answer = {"state": "move", "gameData": None}
         self.send_data(clients, id, answer)
         while (True):
             data = self.read_data(clients, id)
+
+            if not game.validate_move(id, data):
+                reason = GameOutcomeReason.INVALID_MOVE
+                break
+
             print('recieve: ', data)
             result = self.handle_player_move(game, id, data)
             if result == {}:
@@ -119,7 +125,7 @@ class CheckSystemImpl(CheckingSystem):
         elif result["win_id"] == 1:
             outcome = GameOutcome.SECOND_WIN
 
-        return GameVerdict(GameOutcome.FIRST_WIN, GameOutcomeReason.OK)
+        return GameVerdict(outcome, reason)
 
     def get_initial_data(self, game, id):
         data = game.get_initial_data_for_player(id)
@@ -139,7 +145,7 @@ if __name__ == '__main__':
     with open('strategy.py', 'rb') as f:
         bytes = f.read()
 
-    game = CardGame()
+        game = CardGame()
     lr = LanguageRegistry.from_languages([
         PythonLanguage()
     ])
