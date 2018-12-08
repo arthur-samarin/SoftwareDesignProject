@@ -120,9 +120,9 @@ class CheckSystemImpl(CheckingSystem):
             id = 1 - id
 
         outcome = GameOutcome.TIE
-        if result["win_id"] == 0:
+        if final_result["win_id"] == 0:
             outcome = GameOutcome.FIRST_WIN
-        elif result["win_id"] == 1:
+        elif final_result["win_id"] == 1:
             outcome = GameOutcome.SECOND_WIN
 
         return GameVerdict(outcome, reason)
