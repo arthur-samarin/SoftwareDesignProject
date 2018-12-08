@@ -92,12 +92,11 @@ class CheckSystemImpl(CheckingSystem):
         self.send_data(clients, id, answer)
         while (True):
             data = self.read_data(clients, id)
-
+            print('recieve: ', data)
             if not game.validate_move(id, data):
                 reason = GameOutcomeReason.INVALID_MOVE
                 break
 
-            print('recieve: ', data)
             result = self.handle_player_move(game, id, data)
             if result == {}:
                 result = self.check_win(game)

@@ -51,7 +51,20 @@ class CardGame(Game):
         return result
 
     def validate_move(self, id, data):
-        return True
+        cards_on_table = data['cardsOnTable']
+        if len(cards_on_table) % 2 == 0:
+            return True
+        if ("putCards" in data):
+            card = data["putCards"]
+        else:
+            card = None
+
+        if card is None:
+            return True
+
+        (a, b) = cards_on_table[-1]
+        (c, d) = data['putCards']
+        return self.compare(Card(a, b), Card(card[0], card[1])) == -1
 
 
     def handle_player_move(self, id, data):
@@ -62,6 +75,7 @@ class CardGame(Game):
             return result
         result["cardsInDeck"] = len(self._deck)
         result["id"] = id
+
         if ("putCards" in data):
             card = data["putCards"]
         else:
