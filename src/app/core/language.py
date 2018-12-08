@@ -6,6 +6,13 @@ class Language:
         self.name = name
         self.display_name = display_name
 
+    def get_compile_command(self, file: str) -> Optional[List[str]]:
+        raise NotImplementedError()
+
+    def get_run_command(self, file: str) -> List[str]:
+        raise NotImplementedError()
+
+
 
 class LanguageRegistry:
     def __init__(self):
