@@ -8,8 +8,11 @@ from app.bot import AppRequestHandler
 from app.bot.mvc import MvcBotRunner
 from app.bot.notification_service import BotNotificationService
 from app.core import GamesRegistry, Game, LanguageRegistry, Language, EloRatingSystem
+from app.core.card_game import CardGame
 from app.core.checksys import RandomCheckingSystem
 from app.core.checksys.async_checking_system import ThreadPoolCheckingSystem
+from app.core.checksys.card_checking_system import CheckSystemImpl
+from app.core.languages import CppLanguage, PythonLanguage
 from app.dao import Database
 from app.dao.solutions_dao import SolutionsDao
 from .config import Config
@@ -25,15 +28,14 @@ class Launcher:
         database.setup()
 
         games_registry = GamesRegistry()
-        games_registry.register(Game('xo3', 'Крестики-нолики 3x3'))
-        games_registry.register(Game('xo10', 'Крестики-нолики 10x10'))
+        games_registry.register(CardGame())
 
         languages_registry = LanguageRegistry()
-        languages_registry.register(Language('python3', 'Python 3'))
-        languages_registry.register(Language('g++', 'g++ (C++17)'))
+        languages_registry.register(PythonLanguage())
+        languages_registry.register(CppLanguage())
 
         checking_system = ThreadPoolCheckingSystem(
-            RandomCheckingSystem(),
+            CheckSystemImpl(languages_registry, 'checkdir'),
             ThreadPoolExecutor(8)
         )
 
